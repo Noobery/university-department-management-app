@@ -103,13 +103,21 @@
                     <td>{{Student[1]}}</td>
                     <td>{{Student[2]}}</td>
                     <td>{{Student[3]}}</td>
-                    {% for column in range(head)  %}
+                    {% for column in range(head) %}
                     <td>{{Student[6+column]}}</td>
                     {% endfor %}
                     <td></td>
                     <td>{{Student[5]}}</td>
                     <td>
-                        <button type="button" class="btn btn-outline-light">
+                        <button type="button" class="btn btn-outline-light addStudentScore"
+                            data-bs-toggle="modal" data-bs-target="#addScore"
+                            {% if Tables|length > 6 %}
+                            {% for column in range(head) %}
+                            {% set value = Tables[column+6][0] %}
+                            {% set text = value.rsplit('_', 1)[0] %}
+                            data-{{ text }}="{{ Student[6+column] }}"
+                            {% endfor %}
+                            {% endif %}>
                             <i class="fa-solid fa-plus" style="color: #000000;"></i>
                         </button>
                         <button type="button" class="btn 1">
@@ -157,4 +165,59 @@
         </form>
     </div>
 </div>
+
+<div class="modal fade" id="addScore" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Score Student</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Activity Name</label>
+                <input type="text" name="activityname" id="name" class="form-control" placeholder="Enter Activity">
+            </div>
+            {% if Tables|length > 6 %}
+            {% for column in range(head) %}
+                {% set value = Tables[column+6][0] %}
+                {% set value_with_spaces = value|replace("_", " ") %}
+                {% set last_space_index = value_with_spaces.rfind(' ') %}
+                {% set numeric_part = value_with_spaces[last_space_index+1:] %}
+                {% set text_part = value_with_spaces[:last_space_index] %}
+                {% set name = text_part | replace(" ", "_")  %}
+                <div class="form-group">
+                    <label>{{text_part}}</label>
+                    <input type="text" name="{{name | lower}}" class="form-control" placeholder="{{numeric_part}}">
+                </div>
+            {% endfor %}
+            {% endif %}
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Understood</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+const addStudentScores = document.querySelectorAll(".addStudentScore");
+addStudentScores.forEach((button) => {
+    button.addEventListener('click', () => {
+        const notIncludedKeys = ['bsTarget', 'bsToggle'];
+        const datasets = button.dataset;
+        Object.entries(datasets).forEach(([key, value]) => {
+            if (notIncludedKeys.includes(key)) {
+                return;
+            }
+            console.log(`${key}: ${value}`)
+            const input = document.querySelector(`input[name="${key}"]`);
+            console.log(input)
+            if (input) {
+                input.value = value;
+            }
+        })
+    });
+})
+</script>
 {% endblock %}

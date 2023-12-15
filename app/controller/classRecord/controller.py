@@ -149,3 +149,26 @@ def create_activity ():
         flash_message = {"type": "danger", "message": f"Failed to Add Activity. Please check the form for errors."}
         session['flash_message'] = flash_message
         return redirect(url_for(".assessment_record", assessment=assessment, message=flash_message))
+
+@classRecord.route("/class_record/update-activity", methods=["POST"])
+def update_subject():
+    if request.method == "POST":
+        subjectCode = request.form["subjectCode"]
+        old_subjectCode = request.form["editCodeInputHidden"]
+        section = request.form["section"]
+        old_sectionCode = request.form["editSectionInputHidden"]
+        description = request.form["description"]
+        credits = request.form["credits"]
+        handler = request.form["handler"]
+        old_handlerCode = request.form["editHandlerInput"]
+
+        # result = subjectModel.Subjects.update(subjectCode, old_subjectCode, section, old_sectionCode, description, credits, handler, old_handlerCode)
+        # if "success" in result:
+        #     credentials_message = f"Subject Code: <strong>{subjectCode}</strong><br>Section: <strong>{section}</strong><br> Description: <strong>{description}</strong><br>Credits: <strong>{credits}</strong><br>Handler: <strong>{handler}</strong>"
+        #     flash_message = {"type": "success", "message": f"Subject Edited successfully - {credentials_message}"}
+        #     session['flash_message'] = flash_message
+        # else:
+        #     flash_message = {"type": "danger", "message": f"Failed to Edit Subject: {result}"}
+        #     session['flash_message'] = flash_message
+        # return redirect(url_for(".index", message=flash_message))
+    return redirect(url_for(".index"))
