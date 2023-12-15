@@ -47,6 +47,30 @@
                     <td colspan="{{col + 2}}"> </td>
                 </tr>
                 <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    {% if Tables|length > 6 %}
+                    <th style="text-align: right;">Highest Score:</th>
+                    {% else %}
+                    <th style="text-align: left;">Highest Score:</th>
+
+                    {% endif %}
+                    {% if Tables|length > 6 %}
+                    {% for column in range(head) %}
+                        {% set value = Tables[column+6][0] %}
+                        {% set value_with_spaces = value|replace("_", " ") %}
+                        {% set last_space_index = value_with_spaces.rfind(' ') %}
+                        {% set numeric_part = value_with_spaces[last_space_index+1:] %}
+                        {% set text_part = value_with_spaces[:last_space_index] %}
+                        <th data-bs-toggle="tooltip" data-bs-title="{{ text_part }}">{{ numeric_part }}</th>
+                    {% endfor %}
+                    {% endif %}
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                <tr>
                     <th>#</th>
                     <th>Student ID</th>
                     <th>First Name</th>
@@ -56,16 +80,17 @@
                         {% set value = Tables[column+6][0] %}
                         {% set value_with_spaces = value|replace("_", " ") %}
                         {% set last_space_index = value_with_spaces.rfind(' ') %}
-                        {% set title = value_with_spaces[:last_space_index] ~ ' - ' ~ value_with_spaces[last_space_index+1:] %}
-                        <th data-bs-toggle="tooltip" data-bs-title="{{ title }}">S</th>
+                        {% set text_part = value_with_spaces[:last_space_index] %}
+                        <th data-bs-toggle="tooltip" data-bs-title="{{ text_part }}">S</th>
                     {% endfor %}
-                   {% endif %}
+                    {% endif %}
                     <th>
                         <button type="button" class="btn btn-secondary addActivity BtnStyle" style="font-size:smaller" data-bs-toggle="modal" data-bs-target="#addActivity">Add Activity
                             <i class="fa-solid fa-plus"></i>
                         </button>
                     </th>
-                    <th>Total Score</th>
+
+                    <th data-bs-toggle="tooltip" data-bs-title="{{ title }}">Total Score</th>
                     <th>Action</th>
                 </tr>
             </thead>

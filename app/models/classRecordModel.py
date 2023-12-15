@@ -201,7 +201,7 @@ class ClassRecord:
                 firstname VARCHAR(255),
                 lastname VARCHAR(255),
                 email VARCHAR(255),
-                finalscore DECIMAL(6,2) DEFAULT 0.00,
+                finalscore INT DEFAULT 0,
                 PRIMARY KEY (classID)
                 );
             '''.format(table_name)
