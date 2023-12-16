@@ -96,7 +96,7 @@
                     <td>{{Student[6+column]}}</td>
                     {% endfor %}
                     <td></td>
-                    <td>{{Student[5]}}</td>
+                    <td>{{Student[5]}} ({{ '%.2f' % ((Student[5] / TotalScore) * 100) }}%)</td>
                     <td>
                         <button type="button" class="btn btn-outline-light addStudentScore"
                             data-bs-toggle="modal" data-bs-target="#addScore" data-id="{{Student[1]}}" data-firstname="{{Student[2]}}" data-lastname="{{Student[3]}}"
