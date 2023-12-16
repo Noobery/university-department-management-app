@@ -15,7 +15,7 @@
             </li>
             {% for Assessment in Assessments %}
             {% set assessment_link = Assessment[0]|replace(' ', '_') %}
-            <li><a class="dropdown-item" href="{{ url_for('classRecord.assessment_record', assessment=assessment_link) }}">{{Assessment[0]}}</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('classRecord.assessment_record', assessment=assessment_link) }}">{{Assessment[0]}} - {{Assessment[1]}}% </a></li>
             {% endfor %}
         </ul>
     </div>
@@ -23,17 +23,17 @@
 <div class="classRecord-header">
     <div class="row">
         <div class="col-3 d-flex gap-3">
-            
+
             <button type="button" class="btn btn-secondary BtnStyle AddStudentBtn ms-3" data-bs-toggle="modal" data-bs-target="#addStudentModal">
                 <i class="fa-solid fa-user-plus"></i> Add Student
-                
-            </button>   
+
+            </button>
             <button type="button" class="btn btn-secondary import-csv-modal float-end" data-bs-toggle="modal" data-bs-target="#importCSVModal">
                 <i class="fa-solid fa-file-csv" style="color: #ffffff;"></i> CSV
             </button>
         </div>
         <div class = "col-2">
-            
+
         </div>
         <!-- <div class="col-4" id="flash-messages-container">
             {% if flash_message %}
@@ -45,7 +45,7 @@
             </div>
             {% endif %}
         </div> -->
-        
+
     </div>
 </div>
 
@@ -387,7 +387,7 @@
                 <button class = "btn btn-secondary" id = "downloadTemplateCR" type = "button"><i class="fa-solid fa-file-arrow-down" style="color: #ffffff;"></i> Template</button>
                 <button type="submit" class="btn btn-primary float-end">Upload</button>
             </form>
-            
+
         </div>
       </div>
     </div>
