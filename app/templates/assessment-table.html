@@ -27,16 +27,6 @@
     </div>
 </div>
 <div class="classRecord-header">
-    <!-- <div id="flash-messages-container">
-        {% if flash_message %}
-        <div class="alert alert-{{ flash_message.type }} alert-dismissible fade show" role="alert">
-            <div class="d-flex justify-content-between align-items-center">
-            <span>{{ flash_message.message | safe }}</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-        {% endif %}
-    </div> -->
 </div>
 <div class="table-container d-flex pb-4">
     <div class="classRecord-body">
@@ -54,7 +44,6 @@
                     <th style="text-align: right;">Highest Score:</th>
                     {% else %}
                     <th style="text-align: left;">Highest Score:</th>
-
                     {% endif %}
                     {% if Tables|length > 6 %}
                     {% for column in range(head) %}
@@ -67,7 +56,7 @@
                     {% endfor %}
                     {% endif %}
                     <th></th>
-                    <th></th>
+                    <th>{{TotalScore}}</th>
                     <th></th>
                 </tr>
                 <tr>
@@ -110,7 +99,7 @@
                     <td>{{Student[5]}}</td>
                     <td>
                         <button type="button" class="btn btn-outline-light addStudentScore"
-                            data-bs-toggle="modal" data-bs-target="#addScore"
+                            data-bs-toggle="modal" data-bs-target="#addScore" data-id="{{Student[1]}}" data-firstname="{{Student[2]}}" data-lastname="{{Student[3]}}"
                             {% if Tables|length > 6 %}
                             {% for column in range(head) %}
                             {% set value = Tables[column+6][0] %}
@@ -166,58 +155,49 @@
     </div>
 </div>
 
-<div class="modal fade" id="addScore" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Score Student</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label>Activity Name</label>
-                <input type="text" name="activityname" id="name" class="form-control" placeholder="Enter Activity">
-            </div>
-            {% if Tables|length > 6 %}
-            {% for column in range(head) %}
-                {% set value = Tables[column+6][0] %}
-                {% set value_with_spaces = value|replace("_", " ") %}
-                {% set last_space_index = value_with_spaces.rfind(' ') %}
-                {% set numeric_part = value_with_spaces[last_space_index+1:] %}
-                {% set text_part = value_with_spaces[:last_space_index] %}
-                {% set name = text_part | replace(" ", "_")  %}
-                <div class="form-group">
-                    <label>{{text_part}}</label>
-                    <input type="text" name="{{name | lower}}" class="form-control" placeholder="{{numeric_part}}">
+<div class="modal fade" id="addScore" data-bs-backdrop="static" tabindex="-1" role="dialog"
+    aria-labelledby="addScoreModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <form action="{{ url_for('classRecord.update_activity') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token()}}">
+            <div class="modal-content">
+                <div class="modal-header class-record-modal-header">
+                    <h5 class="modal-title">Add Assessment Activity</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            {% endfor %}
-            {% endif %}
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Understood</button>
-        </div>
-      </div>
+                <div class="modal-body class-record-modal-body">
+                    <input type="hidden" name="id" id="studentid">
+                    <h4>ID: <span id="id" name="id" ></span></h4><br>
+                    <h4>Name: <span id="firstname"></span> <span id="lastname"></span></h4><br>
+                    {% if Tables|length > 6 %}
+                    {% for column in range(head) %}
+                        {% set value = Tables[column+6][0] %}
+                        {% set value_with_spaces = value|replace("_", " ") %}
+                        {% set last_space_index = value_with_spaces.rfind(' ') %}
+                        {% set numeric_part = value_with_spaces[last_space_index+1:] %}
+                        {% set text_part = value_with_spaces[:last_space_index] %}
+                        {% set name = text_part | replace(" ", "_")  %}
+                        <div class="form-group mb-3">
+                            <label>{{text_part}}</label>
+                            <input type="text" name="{{name | lower}}" class="form-control" placeholder="{{numeric_part}}">
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="modal-footer class-record-modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark" style="color: #ffffff;"></i> Close
+                    </button>
+                    <button type="submit" id="submit" class="btn btn-success" data-bs-dismiss="modal"> <i
+                            class="fa-solid fa-user-pen"></i>Add Score
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+{% endblock %}
 
-<script>
-const addStudentScores = document.querySelectorAll(".addStudentScore");
-addStudentScores.forEach((button) => {
-    button.addEventListener('click', () => {
-        const notIncludedKeys = ['bsTarget', 'bsToggle'];
-        const datasets = button.dataset;
-        Object.entries(datasets).forEach(([key, value]) => {
-            if (notIncludedKeys.includes(key)) {
-                return;
-            }
-            console.log(`${key}: ${value}`)
-            const input = document.querySelector(`input[name="${key}"]`);
-            console.log(input)
-            if (input) {
-                input.value = value;
-            }
-        })
-    });
-})
-</script>
+{% block assessmentscript %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/assessment.js') }}"></script>
 {% endblock %}

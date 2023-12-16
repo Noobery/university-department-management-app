@@ -121,8 +121,12 @@ def assessment_record (assessment):
     Assessments = ClassRecord.getAssessmentList(subject_code, section_code, school_year, sem)
     Students = ClassRecord.getStudentsInAssessment(subject_code, section_code, school_year, sem, assessment)
     Tables = ClassRecord.getAssessmentColumns(subject_code, section_code, school_year, sem, assessment)
+    ColumnNames = [Tables[i][0] for i in range(len(Tables))]
+    TotalColumns = [column_name for index, column_name in enumerate(ColumnNames) if index >= 6]
+    last_numbers = [int(column.split('_')[-1]) for column in TotalColumns]
+    TotalScore = sum(last_numbers)
     flash_message = session.pop('flash_message', None)
-    return render_template("assessment-table.html", Name=Name, ClassDetails=ClassDetails, Assessments=Assessments, Students=Students, Tables=Tables, flash_message=flash_message)
+    return render_template("assessment-table.html", Name=Name, ClassDetails=ClassDetails, Assessments=Assessments, Students=Students, Tables=Tables, TotalScore=TotalScore,flash_message=flash_message)
 
 
 @classRecord.route("/class_record/assessment/create_activity", methods=['POST','GET'])
@@ -135,8 +139,6 @@ def create_activity ():
         activityname = form.activityname.data
         scorelimit = form.scorelimit.data
         name = activityname.replace(' ', '_')
-        print(name)
-
         result = ClassRecord.addAssessmentActivity(subject_code, section_code, school_year, sem, assessment, name, scorelimit)
         if "success" in result:
             credentials_message = f"<br>Activity Name: <strong>{activityname}</strong><br>Score Limit: <strong>{scorelimit}</strong>"
@@ -154,28 +156,22 @@ def create_activity ():
 
 @classRecord.route('/upload', methods=['POST'])
 def upload_file():
-
     ClassDetails = session.get('ClassDetails', None)
     subject_code, description, section_code, credits, sem, school_year = ClassDetails
-
     try:
         file = request.files['file']
         if file and file.filename.endswith('.csv'):
             ClassRecord.truncate_assessment(subject_code, section_code, school_year, sem)
             ClassRecord.truncate_classrecord(subject_code, section_code, school_year, sem)
             result = ClassRecord.upload_csv(file, subject_code, section_code, school_year, sem)
-
             if 'success' in result["type"]:
                 flash_message = {"type": "success", "message": f"{file.filename} uploaded successfully."}
             else:
                 flash_message = {"type": "danger", "message": f"Error: {result['message']}"}
-
             session['flash_message'] = flash_message
-
             return redirect(url_for(".index", subject_code=subject_code, description=description, section_code=section_code, credits=credits, sem=sem, school_year=school_year, message=flash_message))
         else:
             raise Exception("Invalid file format. Please upload a CSV file.")
-
     except Exception as e:
         flash_message = {"type": "danger", "message": f"Error: {str(e)}"}
         session['flash_message'] = flash_message
@@ -183,29 +179,32 @@ def upload_file():
 
 @classRecord.route('/download/classrecord')
 def download_classrecord_file():
-    # Replace 'path/to/your/file.csv' with the actual path to your file
     file_path = current_app.root_path + '/static/csv-files/class-record.csv'
     return send_file(file_path, as_attachment=True, download_name='class-record.csv')
 
 @classRecord.route("/class_record/update-activity", methods=["POST"])
-def update_subject():
-    if request.method == "POST":
-        subjectCode = request.form["subjectCode"]
-        old_subjectCode = request.form["editCodeInputHidden"]
-        section = request.form["section"]
-        old_sectionCode = request.form["editSectionInputHidden"]
-        description = request.form["description"]
-        credits = request.form["credits"]
-        handler = request.form["handler"]
-        old_handlerCode = request.form["editHandlerInput"]
-
-        # result = subjectModel.Subjects.update(subjectCode, old_subjectCode, section, old_sectionCode, description, credits, handler, old_handlerCode)
-        # if "success" in result:
-        #     credentials_message = f"Subject Code: <strong>{subjectCode}</strong><br>Section: <strong>{section}</strong><br> Description: <strong>{description}</strong><br>Credits: <strong>{credits}</strong><br>Handler: <strong>{handler}</strong>"
-        #     flash_message = {"type": "success", "message": f"Subject Edited successfully - {credentials_message}"}
-        #     session['flash_message'] = flash_message
-        # else:
-        #     flash_message = {"type": "danger", "message": f"Failed to Edit Subject: {result}"}
-        #     session['flash_message'] = flash_message
-        # return redirect(url_for(".index", message=flash_message))
-    return redirect(url_for(".index"))
+def update_activity():
+    ClassDetails = session.get('ClassDetails', None)
+    subject_code, description, section_code, credits, sem, school_year = ClassDetails
+    assessment = session.pop('Assessment', None)
+    if request.method == 'POST':
+        id = request.form.get('id')
+        columns = ClassRecord.getAssessmentColumns(subject_code, section_code, school_year, sem, assessment)
+        column_names = [columns[i][0] for i in range(len(columns))]
+        names_greater_than_6 = [column_name for index, column_name in enumerate(column_names) if index >= 6]
+        dynamic_fields = {}
+        for key, value in request.form.items():
+            if key != 'id' and key != 'csrf_token':
+                new_key = names_greater_than_6.pop(0)
+                dynamic_fields[new_key] = value
+        result = ClassRecord.addScoreToStudent(subject_code, section_code, school_year, sem, assessment, id, dynamic_fields)
+        if "Success" in result:
+            credentials_message = f"Student ID: <strong>{id}</strong>"
+            flash_message = {"type": "success", "message": f"Score Successfully Updated:{credentials_message}"}
+            session['flash_message'] = flash_message
+            return redirect(url_for(".assessment_record", assessment=assessment, message=flash_message))
+        else:
+            flash_message = {"type": "danger", "message": f"Failed to Update Score<br>{result}"}
+            session['flash_message'] = flash_message
+            return redirect(url_for(".assessment_record", assessment=assessment, message=flash_message))
+    return redirect(url_for(".assessment_record", assessment=assessment))

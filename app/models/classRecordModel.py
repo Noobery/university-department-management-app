@@ -50,7 +50,7 @@ class ClassRecord:
             values = (studentID, firstname, lastname, coursecode, email)
             cursor.execute(insert_query, values)
             mysql.connection.commit()
-            
+
             as_table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}%'.replace('-', '_')
             cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE %s AND table_schema = 'progsys_db'", (as_table_name,))
             as_tables = cursor.fetchall()
@@ -106,7 +106,7 @@ class ClassRecord:
             return "Student deleted successfully"
         except Exception as e:
             return f"Failed to delete student: {str(e)}"
-            return f"Failed to delete student: {str(e)}"
+
     @staticmethod
     def createGradeDistributionTable(subject_code, section_code, school_year, sem):
         try:
@@ -164,14 +164,11 @@ class ClassRecord:
         try:
             cursor = mysql.connection.cursor()
             table_name = f'GD_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_')
-
             cursor.execute(f"DELETE FROM {table_name} WHERE assessmentID = %s", (assessmentid,))
             mysql.connection.commit()
-
             cursor.execute(f"SET @new_assessmentID := 0;")
             cursor.execute(f"UPDATE {table_name} SET assessmentID = @new_assessmentID := @new_assessmentID + 1 ORDER BY assessmentid;")
             mysql.connection.commit()
-
             return "Assessment deleted successfully"
         except Exception as e:
             return f"Failed to delete assessment: {str(e)}"
@@ -297,20 +294,16 @@ class ClassRecord:
     @classmethod
     def upload_csv(cls, file, subject_code, section_code, school_year, sem):
         try:
-            # Check if the file is provided and has a CSV extension
             if file and file.filename.endswith('.csv'):
                 # Load CSV data
-                cls.load_csv_data(file)  # Load CSV data
-
-                # Continue with the rest of the code
+                cls.load_csv_data(file)
                 cursor = mysql.connection.cursor()
-
                 as_table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}%'.replace('-', '_')
                 cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE %s AND table_schema = 'progsys_db'", (as_table_name,))
                 as_tables = cursor.fetchall()
 
                 for index, row in enumerate(cls.csv_data):
-                    if index == 0:  # Skip the header (first row)
+                    if index == 0:
                         continue
 
                     tablename = f'CR_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_')
@@ -321,70 +314,69 @@ class ClassRecord:
                 for table in as_tables:
                     as_table_name = table[0]
                     for index, row in enumerate(cls.csv_data):
-                        if index == 0:  # Skip the header (first row)
+                        if index == 0:
                             continue
-
                         cursor.execute(f"INSERT INTO {as_table_name} (studentID, firstname, lastname, email) VALUES (%s, %s, %s, %s)", (row[0], row[1], row[2], row[3]))
-
-                # Commit the changes to the database
                 mysql.connection.commit()
-
                 return {"type": "success", "message": 'File uploaded and data inserted successfully.'}
-
             else:
                 return {"type": "danger", "message": 'Invalid file format. Please upload a CSV file.'}
-
         except Exception as e:
             error_message = f'Error: {str(e)}'
             return {"type": "danger", "message": error_message}
 
 
-
-        
     @classmethod
     def truncate_assessment(cls, subject_code, section_code, school_year, sem):
         try:
             cursor = mysql.connection.cursor()
-
             as_table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}%'.replace('-', '_')
             cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE %s AND table_schema = 'progsys_db'", (as_table_name,))
             as_tables = cursor.fetchall()
             print("count", as_tables)
-
             for table in as_tables:
                 as_table_name = table[0]
                 cursor.execute(f"TRUNCATE TABLE {as_table_name}")
                 mysql.connection.commit()
-                
-
             mysql.connection.commit()
-
             return "Assessments truncated successfully"
-        
         except Exception as e:
             return f"Error: {str(e)}"
-    
+
     @classmethod
     def truncate_classrecord (cls, subject_code, section_code, school_year, sem):
-        try: 
+        try:
             cursor = mysql.connection.cursor()
-            tablename = f'CR_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_') 
-
+            tablename = f'CR_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_')
             cursor.execute(f"TRUNCATE TABLE {tablename}")
-
             mysql.connection.commit()
-
             return "Classrecord truncated successfully"
-        
         except Exception as e:
             return f"Error: {str(e)}"
-        
-    
+
     @classmethod
     def load_csv_data(cls, file):
-        # Set cls.csv_data to None only if it is not already loaded
         if cls.csv_data is None:
             cls.csv_data = None
-
         file_content = file.read().decode('utf-8').splitlines()
         cls.csv_data = list(csv.reader(file_content))
+
+    @classmethod
+    def addScoreToStudent(cls, subject_code, section_code, school_year, sem, assessment, id, dynamic_fields):
+        try:
+            cursor = mysql.connection.cursor()
+            table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}_{assessment}'.replace('-', '_')
+            id = f"'{id}'"
+            for key, value in dynamic_fields.items():
+                cursor.execute(f"UPDATE {table_name} SET {key} = {value} WHERE studentID = {id} ;")
+
+            final_score_query = f"""
+                UPDATE {table_name}
+                SET finalscore = {'+'.join(dynamic_fields.values())}
+                WHERE studentID = {id};
+            """
+            cursor.execute(final_score_query)
+            mysql.connection.commit()
+            return "Score Updated Successfully"
+        except Exception as e:
+            return "Contstraints Violated - Score Exceeds Score Limit"
