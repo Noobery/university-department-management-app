@@ -1,3 +1,14 @@
+function sendGrade(email, grade) {
+    fetch(`/send_email/${email}/${grade}`)
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);  
+        })
+        .catch(error => {
+            alert('Error sending email');
+            console.error('Error:', error);
+        });
+}
 $(document).ready(function() {
     $('.delete-student').click(function(event) {
         event.preventDefault();

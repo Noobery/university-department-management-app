@@ -68,7 +68,7 @@
                     <td>{{Student[5]}}</td>
                     <!-- <td>{{Student[6]}}</td> -->
                     <td>
-                        <button type="button" class="btn 1">
+                        <button type="button" class="btn 1" onclick="sendGrade('{{ Student[1] }}', '{{ Student[5] }}')">
                             <i class="fa-solid fa-bell" style="color: #000000;"></i>
                         </button>
                         <button type="button" class="btn btn-outline-light delete-student" data-studentid="{{Student[1]}}" data-firstname="{{Student[2]}}" data-lastname="{{Student[3]}}" data-bs-toggle="modal" data-bs-target="#askDelete">

@@ -4,8 +4,10 @@ from flask.helpers import url_for
 from app.controller.admin.controller import login_is_required
 from app.models.classRecordModel import ClassRecord
 from app.controller.classRecord.forms import classRecordForm, gradeDistributionForm, activityForm
-
 from . import classRecord
+from app.controller.classRecord.email_utils import send_email 
+from app import mail
+from flask_mail import Message
 
 def classRecord_route(rule, **options):
     def decorator(f):
@@ -149,3 +151,19 @@ def create_activity ():
         flash_message = {"type": "danger", "message": f"Failed to Add Activity. Please check the form for errors."}
         session['flash_message'] = flash_message
         return redirect(url_for(".assessment_record", assessment=assessment, message=flash_message))
+    
+
+@classRecord.route('/send_email/<email>/<grade>')
+def send_email(email, grade):
+    subject = 'Your Class Grade'
+    body = f'Hello!, <br>Your grade for the class is: {grade}<br><br>Best regards,<br>Your School'
+    
+    try:
+        msg = Message(subject, sender='Fulgent', recipients=[email])
+        msg.html = body
+        mail.send(msg)
+        flash('Email sent successfully!', 'success')
+    except Exception as e:
+        flash(f'Error sending email: {str(e)}', 'error')
+
+    return redirect(url_for('classRecord.index'))
