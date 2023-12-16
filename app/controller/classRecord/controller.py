@@ -8,6 +8,7 @@ from . import classRecord
 from app.controller.classRecord.email_utils import send_email
 from app import mail
 from flask_mail import Message
+from flask import session
 
 def classRecord_route(rule, **options):
     def decorator(f):
@@ -155,11 +156,13 @@ def create_activity ():
 
 @classRecord.route('/send_email/<email>/<grade>')
 def send_email(email, grade):
-    subject = 'Your Class Grade'
-    body = f'Hello!, <br><br><br><br>Your grade for this course is: {grade}<br><br><br><br>Best regards,<br>Your School'
+    subject_code = session.get('ClassDetails')[0]
+    subject = f'Class Grade - {subject_code}'
+    body = f'Hello!, <br><br><br><br>Your grade for {subject_code} course is: {grade}<br><br><br><br>Best regards,<br><br>Your School'
     
     try:
-        msg = Message(subject, sender='Fulgent', recipients=[email])
+        sender_name = session.get('name') 
+        msg = Message(subject, sender=(sender_name), recipients=[email])
         msg.html = body
         mail.send(msg)
         flash('Email sent successfully!', 'success')
@@ -171,13 +174,16 @@ def send_email(email, grade):
 
 
 
+
 @classRecord.route('/send_email_scores/<email>/<scores>')
-def send_email_scores(email, scores):
-    subject = 'Your Scores in Activities'
-    body = f'Hello!, <br><br><br><br>Your scores for all of our class activities is: {scores}<br><br><br><br>Best regards,<br>Your School'
+def send_email_scores(email, scores, assessment):
+    subject_code = session.get('ClassDetails')[0]
+    subject = f'Summary of Scores - {subject_code}'
+    body = f'Hello!, <br><br><br><br>Your grade for {subject_code} course is: {assessment}- {scores}<br><br><br><br>Best regards,<br><br>Your School'
     
     try:
-        msg = Message(subject, sender='Fulgent', recipients=[email])
+        sender_name = session.get('name') 
+        msg = Message(subject, sender=(sender_name), recipients=[email])
         msg.html = body
         mail.send(msg)
         flash('Email sent successfully!', 'success')
