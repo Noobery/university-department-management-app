@@ -6,3 +6,4 @@ def send_email(subject, recipient, body):
     msg = Message(subject, recipients=[recipient])
     msg.html = body
     mail.send(msg)
+
