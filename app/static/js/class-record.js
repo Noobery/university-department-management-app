@@ -13,7 +13,6 @@ function sendScores(email, scores) {
     fetch(`/send_email_scores/${email}/${scores}`)
         .then(response => response.json())
         .then(data => {
-            
             alert(data.message);  
         })
         .catch(error => {

@@ -176,10 +176,10 @@ def send_email(email, grade):
 
 
 @classRecord.route('/send_email_scores/<email>/<scores>')
-def send_email_scores(email, scores, assessment):
+def send_email_scores(email, scores):
     subject_code = session.get('ClassDetails')[0]
     subject = f'Summary of Scores - {subject_code}'
-    body = f'Hello!, <br><br><br><br>Your grade for {subject_code} course is: {assessment}- {scores}<br><br><br><br>Best regards,<br><br>Your School'
+    body = f'Hello!, <br><br><br><br>Your grade for {subject_code} course is: "Activity Name" - {scores}<br><br><br><br>Best regards,<br><br>Your School'
     
     try:
         sender_name = session.get('name') 
