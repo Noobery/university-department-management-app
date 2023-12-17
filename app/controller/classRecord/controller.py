@@ -181,7 +181,7 @@ def send_email_scores( studentID, email, scores):
     subject = f'Summary of Scores - {subject_code}'
     sender_name = session.get('name') 
 
-    body = f'Hello!<br>StudentID: {studentID} , <br><br><br><br>Your final grade for the course {subject_code} : {scores}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
+    body = f'Hello!<br>StudentID: {studentID} , <br><br><br><br>Your score for every activities in course {subject_code}<br> : "Activity Name" - {scores}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
     
     try:
         sender_email = session.get('email') 
