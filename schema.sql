@@ -190,9 +190,6 @@ INSERT INTO `faculty` (facultyID, firstname ,lastname, email, role)
 VALUES ('None', 'None', 'None', 'None', 'Faculty');
 
 INSERT INTO `faculty` (facultyID, firstname, lastname, email, role)
-VALUES ('2023-0001', 'Fulgent Kvasir', 'Lavesores', 'fulgentkvasir.lavesores@g.msuiit.edu.ph', 'Chairperson'),
-('2023-0002', 'Alrick Ivan', 'Gicole', 'alrickivan.gicole@g.msuiit.edu.ph', 'Faculty'),
-('2023-0003', 'Janella', 'Balantac', 'janellasuzanne.balantac@g.msuiit.edu.ph', 'Faculty'),
 VALUES ('2023-0001', 'Fulgent Kvasir', 'Lavesores', 'fulgentkvasir.lavesores@g.msuiit.edu.ph', 'Faculty'),
 ('2023-0002', 'Alrick Ivan', 'Gicole', 'alrickivan.gicole@g.msuiit.edu.ph', 'Chairperson'),
 ('2023-0003', 'Janella', 'Balantac', 'janellasuzanne.balantac@g.msuiit.edu.ph', 'Chairperson'),
