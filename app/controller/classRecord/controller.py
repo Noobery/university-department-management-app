@@ -160,7 +160,7 @@ def send_email( studentID, email, grade):
     subject = f'Class Grade - {subject_code}'
     sender_name = session.get('name') 
 
-    body = f'Hello! {studentID} , <br><br><br><br>Your final grade for the course {subject_code} : {grade}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
+    body = f'Hello!<br>Student ID: {studentID} , <br><br><br><br>Your final grade for the course {subject_code} : {grade}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
     
     try:
         sender_email = session.get('email') 
@@ -174,18 +174,18 @@ def send_email( studentID, email, grade):
     return redirect(url_for('classRecord.index'))
 
 
-@classRecord.route('/send_email_scores')
-def send_email_scores():
+@classRecord.route('/send_email_scores/<email>/<grade>/<studentID>')
+def send_email_scores( studentID, email, scores):
     scores = request.form.get("scores")
-    sender_name = session.get('name') 
-
     subject_code = session.get('ClassDetails')[0]
     subject = f'Summary of Scores - {subject_code}'
-    body = f'Hello!, <br><br><br><br>Your grade for {subject_code} course is: "Activity Name" - {scores}<br><br><br><br>Best regards,<br><br>Your Professor<br> {sender_name}'
+    sender_name = session.get('name') 
+
+    body = f'Hello!<br>StudentID: {studentID} , <br><br><br><br>Your final grade for the course {subject_code} : {scores}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
     
     try:
-        sender_name = session.get('name') 
-        msg = Message(subject, sender=(sender_name), recipients=[email])
+        sender_email = session.get('email') 
+        msg = Message(subject, sender=(sender_email), recipients=[email])
         msg.html = body
         mail.send(msg)
         flash('Email sent successfully!', 'success')
