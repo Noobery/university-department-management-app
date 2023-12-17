@@ -156,24 +156,21 @@ def create_activity ():
     
 
 @classRecord.route('/send_email/<email>/<grade>/<studentID>')
-def send_email( studentID, email, grade):
+def send_email(studentID, email, grade):
     subject_code = session.get('ClassDetails')[0]
     subject = f'Class Grade - {subject_code}'
     sender_name = session.get('name') 
 
-    body = f'Hello!<br>Student ID: {studentID} , <br><br><br><br>Your final grade for the course {subject_code} : {grade}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
+    body = f'Hello!<br>Student ID: {studentID}, <br><br><br><br>Your final grade for the course {subject_code} : {grade}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
     
     try:
         sender_email = session.get('email') 
         msg = Message(subject, sender=(sender_email), recipients=[email])
         msg.html = body
         mail.send(msg)
-        flash('Email sent successfully!', 'success')
+        return jsonify({'status': 'success', 'message': 'Email sent successfully!'})
     except Exception as e:
-        flash(f'Error sending email: {str(e)}', 'error')
-
-    return redirect(url_for('classRecord.index'))
-
+        return jsonify({'status': 'error', 'message': f'Error sending email: {str(e)}'})
 
 @classRecord.route('/send_email_scores/<email>/<grade>/<studentID>')
 def send_email_scores( studentID, email, scores):

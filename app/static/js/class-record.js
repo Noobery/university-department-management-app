@@ -2,7 +2,11 @@ function sendGrade(email, grade, studentID) {
     fetch(`/send_email/${email}/${grade}/${studentID}`)
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            if (data.status === 'success') {
+                alert('Email sent successfully!');
+            } else {
+                alert(`Error sending email: ${data.message}`);
+            }
         })
         .catch(error => {
             alert('Error sending email');
@@ -137,24 +141,3 @@ $(document).ready(function() {
 
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
-document.getElementById('downloadTemplateCR').addEventListener('click', function () {
-    // Replace '/download/subject' with the route that serves the file in your Flask app
-    var downloadRoute = '/download/classrecord';
-
-    // Create an anchor element
-    var anchor = document.createElement('a');
-    anchor.href = downloadRoute;
-
-    // Set the download attribute with the desired file name
-    anchor.download = 'class-record.csv';
-
-    // Append the anchor to the body
-    document.body.appendChild(anchor);
-
-    // Trigger a click event on the anchor
-    anchor.click();
-
-    // Remove the anchor from the body
-    document.body.removeChild(anchor);
-});
