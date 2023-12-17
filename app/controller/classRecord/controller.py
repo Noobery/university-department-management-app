@@ -154,17 +154,17 @@ def create_activity ():
         return redirect(url_for(".assessment_record", assessment=assessment, message=flash_message))
     
 
-@classRecord.route('/send_email/<studentID>/<grade>')
-def send_email(studentID, grade):
+@classRecord.route('/send_email/<email>/<grade>/<studentID>')
+def send_email( studentID, email, grade):
     subject_code = session.get('ClassDetails')[0]
     subject = f'Class Grade - {subject_code}'
     sender_name = session.get('name') 
 
-    body = f'Hello!, <br><br><br><br>Your final grade for the course {subject_code} : {grade}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
+    body = f'Hello! {studentID} , <br><br><br><br>Your final grade for the course {subject_code} : {grade}<br><br><br><br>Best regards,<br><br>Your Professor<br>{sender_name}'
     
     try:
-        sender_name = session.get('name') 
-        msg = Message(subject, sender=(sender_name), recipients=[studentID])
+        sender_email = session.get('email') 
+        msg = Message(subject, sender=(sender_email), recipients=[email])
         msg.html = body
         mail.send(msg)
         flash('Email sent successfully!', 'success')
@@ -176,7 +176,6 @@ def send_email(studentID, grade):
 
 @classRecord.route('/send_email_scores')
 def send_email_scores():
-    email = request.form.get("email")
     scores = request.form.get("scores")
     sender_name = session.get('name') 
 
