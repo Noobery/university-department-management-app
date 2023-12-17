@@ -2,6 +2,21 @@ from app import mysql
 import csv
 from decimal import Decimal
 
+# Utilities
+def get_value(search_string, GradeDistributions):
+    for item in GradeDistributions:
+        if item[0] == search_string:
+            return item[1]
+    return None
+
+def get_total_score(as_columns):
+    ColumnNames = [as_columns[i][0] for i in range(len(as_columns))]
+    TotalColumns = [column_name for index, column_name in enumerate(ColumnNames) if index >= 6]
+    last_numbers = [int(column.split('_')[-1]) for column in TotalColumns]
+    total_score = sum(last_numbers)
+    return total_score
+
+
 class ClassRecord:
 
     @staticmethod
@@ -382,23 +397,46 @@ class ClassRecord:
             return "Contstraints Violated - Score Exceeds Score Limit"
 
     @classmethod
-    def updateTotalGrade(cls, subject_code, section_code, school_year, sem, GradeDistributions):
+    def updateTotalGrade(cls, subject_code, section_code, school_year, sem, GradeDistributions, ):
         cursor = mysql.connection.cursor()
 
-        GradeDistributions= dict(GradeDistributions)
-        print(GradeDistributions)
         student_table = f'CR_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_')
         cursor.execute(f'SELECT studentID FROM {student_table} ORDER BY classID;')
         students = cursor.fetchall()
-        print(students)
 
         as_table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}%'.replace('-', '_')
         cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE %s AND table_schema = 'progsys_db'", (as_table_name,))
         as_tables = cursor.fetchall()
 
-        for table in as_tables:
-            as_table_name = table[0]
-            for student in students:
-                for key, value in GradeDistributions.items():
-                    print (value)
-            # cursor.execute(f"INSERT INTO {as_table_name} (studentID, firstname, lastname, email) VALUES (%s, %s, %s, %s)", (studentID, firstname, lastname, email))
+        for student in students:
+            student = student[0]
+            fields = {}
+            for table in as_tables:
+                as_table_name = table[0]
+                assessment = as_table_name.split('_')[-1]
+                percentage = get_value(assessment, GradeDistributions)
+
+                cursor.execute('SELECT COLUMN_NAME FROM information_schema.columns WHERE table_name = %s ORDER BY ordinal_position', (as_table_name,))
+                as_columns = cursor.fetchall()
+                total_score = get_total_score(as_columns)
+
+                sql = 'SELECT finalscore FROM {} WHERE studentID = %s'.format(as_table_name)
+                cursor.execute(sql, (student,))
+                finalscore = cursor.fetchone()[0]
+
+                # Formula
+                if total_score == 0:
+                    value = 0
+                else:
+                    value = round(((finalscore / total_score) * 100) * (percentage / 100), 2)
+                fields[as_table_name] = value
+            total_percentage = sum(fields.values())
+            final_score_query = f"""
+                                UPDATE {student_table}
+                                SET finalgrade = %s
+                                WHERE studentID = %s;
+                                """
+            cursor.execute(final_score_query, (total_percentage, student))
+            print("Final Query:", final_score_query)  # Print the final query for debugging
+        mysql.connection.commit()
+        return "Test"
