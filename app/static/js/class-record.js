@@ -1,5 +1,5 @@
-function sendGrade(email, grade) {
-    fetch(`/send_email/${email}/${grade}`)
+function sendGrade(studentID, grade) {
+    fetch(`/send_email/${studentID}/${grade}`)
         .then(response => response.json())
         .then(data => {
             alert(data.message);
