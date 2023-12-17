@@ -132,7 +132,7 @@ class ClassRecord:
         try:
             cursor = mysql.connection.cursor()
             table_name = f'GD_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_')
-            sql = f"SELECT * FROM {table_name}"
+            sql = f"SELECT name, percentage FROM {table_name}"
             cursor.execute(sql)
             result = cursor.fetchall()
             cursor.close()
@@ -160,11 +160,11 @@ class ClassRecord:
             return f"{str(e)}"
 
     @classmethod
-    def deleteGradeAssessment(cls, subject_code, section_code, school_year, sem, assessmentid):
+    def deleteGradeAssessment(cls, subject_code, section_code, school_year, sem, assessmentname):
         try:
             cursor = mysql.connection.cursor()
             table_name = f'GD_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_')
-            cursor.execute(f"DELETE FROM {table_name} WHERE assessmentID = %s", (assessmentid,))
+            cursor.execute(f"DELETE FROM {table_name} WHERE name = %s", (assessmentname,))
             mysql.connection.commit()
             cursor.execute(f"SET @new_assessmentID := 0;")
             cursor.execute(f"UPDATE {table_name} SET assessmentID = @new_assessmentID := @new_assessmentID + 1 ORDER BY assessmentid;")
@@ -221,10 +221,10 @@ class ClassRecord:
 
 
     @staticmethod
-    def deleteAssessmentTable(subject_code, section_code, school_year, sem, name):
+    def deleteAssessmentTable(subject_code, section_code, school_year, sem, assessmentname):
         try:
             cursor = mysql.connection.cursor()
-            table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}_{name.replace(" ", "_")}'.replace('-', '_')
+            table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}_{assessmentname.replace(" ", "_")}'.replace('-', '_')
             sql = '''
                 DROP TABLE {};
                 '''.format(table_name)
@@ -380,3 +380,25 @@ class ClassRecord:
             return "Score Updated Successfully"
         except Exception as e:
             return "Contstraints Violated - Score Exceeds Score Limit"
+
+    @classmethod
+    def updateTotalGrade(cls, subject_code, section_code, school_year, sem, GradeDistributions):
+        cursor = mysql.connection.cursor()
+
+        GradeDistributions= dict(GradeDistributions)
+        print(GradeDistributions)
+        student_table = f'CR_{subject_code}_{section_code}_{school_year}_{sem}'.replace('-', '_')
+        cursor.execute(f'SELECT studentID FROM {student_table} ORDER BY classID;')
+        students = cursor.fetchall()
+        print(students)
+
+        as_table_name = f'AS_{subject_code}_{section_code}_{school_year}_{sem}%'.replace('-', '_')
+        cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE %s AND table_schema = 'progsys_db'", (as_table_name,))
+        as_tables = cursor.fetchall()
+
+        for table in as_tables:
+            as_table_name = table[0]
+            for student in students:
+                for key, value in GradeDistributions.items():
+                    print (value)
+            # cursor.execute(f"INSERT INTO {as_table_name} (studentID, firstname, lastname, email) VALUES (%s, %s, %s, %s)", (studentID, firstname, lastname, email))

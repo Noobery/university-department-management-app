@@ -96,7 +96,14 @@
                     <td>{{Student[6+column]}}</td>
                     {% endfor %}
                     <td></td>
-                    <td>{{Student[5]}} ({{ '%.2f' % ((Student[5] / TotalScore) * 100) }}%)</td>
+                    <td>
+                        {{Student[5]}}
+                        {% if TotalScore != 0 %}
+                            ({{ '%.2f' % ((Student[5] / TotalScore) * 100) }}%)
+                        {% else %}
+                        %
+                        {% endif %}
+                    </td>
                     <td>
                         <button type="button" class="btn btn-outline-light addStudentScore"
                             data-bs-toggle="modal" data-bs-target="#addScore" data-id="{{Student[1]}}" data-firstname="{{Student[2]}}" data-lastname="{{Student[3]}}"
@@ -167,8 +174,8 @@
                 </div>
                 <div class="modal-body class-record-modal-body">
                     <input type="hidden" name="id" id="studentid">
-                    <h4>ID: <span id="id" name="id" ></span></h4><br>
-                    <h4>Name: <span id="firstname"></span> <span id="lastname"></span></h4><br>
+                    <h5 class="mb-0">ID: <span id="id" name="id"></span></h5><br>
+                    <h5 class="mb-0">Name: <span id="firstname"></span> <span id="lastname"></span></h5><br>
                     {% if Tables|length > 6 %}
                     {% for column in range(head) %}
                         {% set value = Tables[column+6][0] %}
@@ -184,7 +191,7 @@
                     {% endfor %}
                     {% endif %}
                 </div>
-                <div class="modal-footer class-record-modal-footer">
+                <div class="modal-footer class-record-modal-footer justify-content-between">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fa-solid fa-xmark" style="color: #ffffff;"></i> Close
                     </button>

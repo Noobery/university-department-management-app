@@ -61,21 +61,21 @@ $(document).ready(function() {
 $(document).ready(function() {
     $('.delete-assessment').click(function(event) {
         event.preventDefault();
-        var assessmentid = $(this).data('assessmentid');
-        var name = $(this).data('name');
+        var assessmentname = $(this).data('assessmentname');
+        var percentage = $(this).data('percentage');
         var csrfToken = $('meta[name=csrf-token]').attr('content');
 
-        console.log(assessmentid)
-        console.log(name)
+        console.log(assessmentname)
+        console.log(percentage)
         $('#askDeleteAssessment .delete-modal-body').html(
-            `<p>Do you want to delete the following Assessment?</p><strong>Assessment Name:</strong> ${name}`);
+            `<p>Do you want to delete the following Assessment?</p><strong>Assessment Name:</strong> ${assessmentname}`);
 
         $('#askDeleteAssessment').modal('show');
 
         $('#askDeleteAssessment .delete-button').off('click').on('click', function () {
             $.ajax({
                 type: 'POST',
-                url: `/grade_distribution/delete_assessment/${assessmentid}/${name}`,
+                url: `/grade_distribution/delete_assessment/${assessmentname}/${percentage}`,
                 headers: {
                     'X-CSRFToken': csrfToken
                 },

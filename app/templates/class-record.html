@@ -115,10 +115,10 @@
                     <td colspan="3" class="text-center">No Assessments Available.</td>
                     {% else %} {% for GradeDistribution in GradeDistributions %}
                     <tr>
-                        <td>{{GradeDistribution[1]}}</td>
-                        <td>{{GradeDistribution[2]}}%</td>
+                        <td>{{GradeDistribution[0]}}</td>
+                        <td>{{GradeDistribution[1]}}%</td>
                         <td>
-                            <button type="button" class="btn btn-outline-light delete-assessment" data-assessmentid="{{GradeDistribution[0]}}" data-name="{{GradeDistribution[1]}}" data-bs-toggle="modal" data-bs-target="#askDeleteAssessment">
+                            <button type="button" class="btn btn-outline-light delete-assessment" data-assessmentname="{{GradeDistribution[0]}}" data-percentage="{{GradeDistribution[1]}}" data-bs-toggle="modal" data-bs-target="#askDeleteAssessment">
                                 <i class="fa-solid fa-trash" style="color: #000000;"></i>
                             </button>
                         </td>

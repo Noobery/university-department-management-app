@@ -24,6 +24,8 @@ def index(subject_code, section_code, description, credits ,sem, school_year):
     ClassRecord.createGradeDistributionTable(subject_code, section_code, school_year, sem)
     Students = ClassRecord.getStudents(subject_code, section_code, school_year, sem)
     GradeDistributions = ClassRecord.getGradeDistribution(subject_code, section_code, school_year, sem)
+    if GradeDistributions:
+        ClassRecord.updateTotalGrade(subject_code, section_code, school_year, sem, GradeDistributions)
     Assessments = ClassRecord.getAssessmentList(subject_code, section_code, school_year, sem)
     session['ClassDetails'] = ClassDetails
     flash_message = session.pop('flash_message', None)
@@ -98,13 +100,13 @@ def create_grade_distribution():
         return redirect(url_for(".index", subject_code=subject_code, description=description, section_code=section_code, credits=credits, sem=sem, school_year=school_year, message=flash_message))
 
 
-@classRecord.route("/grade_distribution/delete_assessment/<string:assessmentid>/<string:name>", methods=['POST'])
-def delete_grade_distribution(assessmentid, name):
+@classRecord.route("/grade_distribution/delete_assessment/<string:assessmentname>/<string:percentage>", methods=['POST'])
+def delete_grade_distribution(assessmentname, percentage):
     try:
         ClassDetails = session.get('ClassDetails', None)
         subject_code, description, section_code, credits, sem, school_year = ClassDetails
-        result = ClassRecord.deleteGradeAssessment(subject_code, section_code, school_year, sem, assessmentid)
-        ClassRecord.deleteAssessmentTable(subject_code, section_code, school_year, sem, name)
+        result = ClassRecord.deleteGradeAssessment(subject_code, section_code, school_year, sem, assessmentname)
+        ClassRecord.deleteAssessmentTable(subject_code, section_code, school_year, sem, assessmentname)
         flash_message = {"type": "success", "message": f"{result}"}
         session['flash_message'] = flash_message
         return jsonify({'success': True, 'message': 'Assessment Deleted Successfully', 'flash_message': flash_message})
