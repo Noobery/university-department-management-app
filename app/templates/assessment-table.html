@@ -164,7 +164,7 @@
 
 <div class="modal fade" id="addScore" data-bs-backdrop="static" tabindex="-1" role="dialog"
     aria-labelledby="addScoreModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog" role="document">
         <form action="{{ url_for('classRecord.update_activity') }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token()}}">
             <div class="modal-content">
