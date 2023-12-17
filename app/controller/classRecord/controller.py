@@ -24,8 +24,7 @@ def index(subject_code, section_code, description, credits ,sem, school_year):
     ClassRecord.createGradeDistributionTable(subject_code, section_code, school_year, sem)
     Students = ClassRecord.getStudents(subject_code, section_code, school_year, sem)
     GradeDistributions = ClassRecord.getGradeDistribution(subject_code, section_code, school_year, sem)
-    if GradeDistributions:
-        ClassRecord.updateTotalGrade(subject_code, section_code, school_year, sem, GradeDistributions)
+    ClassRecord.updateTotalGrade(subject_code, section_code, school_year, sem, GradeDistributions)
     Assessments = ClassRecord.getAssessmentList(subject_code, section_code, school_year, sem)
     session['ClassDetails'] = ClassDetails
     flash_message = session.pop('flash_message', None)
@@ -188,6 +187,7 @@ def download_classrecord_file():
 def update_activity():
     ClassDetails = session.get('ClassDetails', None)
     subject_code, description, section_code, credits, sem, school_year = ClassDetails
+    GradeDistributions = ClassRecord.getGradeDistribution(subject_code, section_code, school_year, sem)
     assessment = session.pop('Assessment', None)
     if request.method == 'POST':
         id = request.form.get('id')
@@ -201,6 +201,7 @@ def update_activity():
                 dynamic_fields[new_key] = value
         result = ClassRecord.addScoreToStudent(subject_code, section_code, school_year, sem, assessment, id, dynamic_fields)
         if "Success" in result:
+            ClassRecord.updateTotalGrade(subject_code, section_code, school_year, sem, GradeDistributions)
             credentials_message = f"Student ID: <strong>{id}</strong>"
             flash_message = {"type": "success", "message": f"Score Successfully Updated:{credentials_message}"}
             session['flash_message'] = flash_message
